@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选购半夏日记 — 半夏日记</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f5f5f7;
+    --text: #1d1d1f;
+    --text-sub: #6e6e73;
+    --text-mute: #86868b;
+    --line-soft: #e8e8ed;
+    --accent: #0071e3;
+    --accent-hover: #0077ed;
+    --matcha: #8a9a7b;
+    --star: #ffb800;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+      "Helvetica Neue", "PingFang SC", "Noto Sans SC", sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    padding-bottom: 96px;
+    opacity: 1; transform: scale(1);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  body.page-leaving { opacity: 0; transform: scale(0.98); }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
+  .page-load { animation: fadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+  .nav {
+    position: sticky; top: 0; z-index: 100; height: 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 clamp(20px, 5vw, 64px);
+    background: rgba(251,251,253,0.82);
+    backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .nav-logo { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); text-decoration: none; }
+  .nav-logo em { font-style: normal; color: var(--matcha); }
+  .nav-right { display: flex; align-items: center; gap: 28px; font-size: 12px; color: var(--text-sub); }
+  .nav-right a { color: inherit; text-decoration: none; }
+  .nav-right a:hover { color: var(--text); }
+
+  .buy-page { max-width: 1040px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px); }
+  .breadcrumb { padding: 28px 0 8px; font-size: 12px; color: var(--text-mute); }
+  .breadcrumb a { color: inherit; text-decoration: none; }
+  .breadcrumb span { margin: 0 6px; }
+
+  .buy-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: clamp(32px, 6vw, 80px); align-items: start; padding: 20px 0 80px;
+  }
+
+  /* ---------- 左侧预览手机 ---------- */
+  .preview-col {
+    position: sticky; top: 88px; display: flex; flex-direction: column;
+    align-items: center; gap: 20px; padding: 24px 0;
+    perspective: 1000px;
+  }
+
+  .phone {
+    width: min(280px, 72vw); aspect-ratio: 9 / 19.5; background: #1d1d1f;
+    border-radius: 46px; padding: 10px; position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    transform-origin: center center;
+  }
+
+  .phone.switching {
+    transform: scale(0.92) rotateY(20deg) translateY(10px);
+    opacity: 0.5;
+  }
+
+  .phone::before {
+    content: ""; position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    width: 86px; height: 24px; background: #1d1d1f; border-radius: 20px; z-index: 3;
+  }
+
+  .phone-screen {
+    width: 100%; height: 100%; border-radius: 38px; overflow: hidden;
+    display: flex; flex-direction: column; background: #eef1ec;
+    transition: background 0.6s ease;
+    position: relative;
+  }
+
+  .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 22px 8px; font-size: 11px; font-weight: 600; color: var(--s-text, #3d4a32); transition: color 0.6s ease; }
+  .status-icons { display: flex; gap: 4px; align-items: center; }
+  .status-icons i { display: inline-block; width: 12px; height: 7px; border-radius: 2px; background: currentColor; opacity: 0.85; }
+  .status-icons i:nth-child(1) { width: 8px; opacity: 0.5; }
+  .status-icons i:nth-child(2) { width: 10px; opacity: 0.7; }
+
+  .app-body { flex: 1; padding: 10px 18px 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+  .app-date { font-size: 10px; font-weight: 500; letter-spacing: 0.04em; color: var(--s-sub, #6b7a5e); transition: color 0.6s ease; }
+  .app-title { font-size: 21px; font-weight: 600; letter-spacing: -0.02em; color: var(--s-text, #3d4a32); margin-top: -6px; transition: color 0.6s ease; }
+
+  .mood-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mood { padding: 5px 11px; border-radius: 980px; font-size: 10px; font-weight: 500; background: var(--s-tag, #e8ede3); color: var(--s-sub, #6b7a5e); transition: background 0.6s ease, color 0.6s ease; }
+  .mood.active { background: var(--s-accent, #8a9a7b); color: #fff; }
+
+  .entry-card { background: var(--s-card, #fff); border-radius: 14px; padding: 12px 13px; display: flex; flex-direction: column; gap: 7px; transition: background 0.6s ease; }
+  .entry-head { display: flex; justify-content: space-between; align-items: center; }
+  .entry-tag { font-size: 9px; font-weight: 600; letter-spacing: 0.04em; color: var(--s-accent, #8a9a7b); transition: color 0.6s ease; }
+  .entry-time { font-size: 9px; color: var(--s-sub, #6b7a5e); opacity: 0.7; }
+  .entry-text { font-size: 11px; line-height: 1.5; color: var(--s-text, #3d4a32); opacity: 0.85; transition: color 0.6s ease; }
+
+  .tab-bar { height: 54px; display: flex; align-items: center; justify-content: space-around; padding: 0 30px; background: var(--s-card, #fff); border-top: 1px solid var(--s-accent-soft, #d8e0d0); transition: background 0.6s ease, border-color 0.6s ease; }
+  .tab { width: 18px; height: 3px; border-radius: 2px; background: var(--s-sub, #6b7a5e); opacity: 0.35; transition: background 0.6s ease; }
+  .tab.active { background: var(--s-accent, #8a9a7b); opacity: 1; width: 26px; }
+
+  .preview-caption { font-size: 13px; color: var(--text-mute); transition: color 0.4s ease; }
+  
+  /* 新增：效果图免责声明 */
+  .disclaimer {
+    font-size: 11px; color: var(--text-mute);
+    margin-top: -8px; text-align: center; line-height: 1.4;
+    max-width: 260px;
+  }
+
+  /* ---------- 右侧选项 ---------- */
+  .options-col h1 { font-size: clamp(32px, 4vw, 44px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.1; }
+  .options-sub { margin-top: 10px; font-size: 17px; color: var(--text-sub); }
+  .rating { display: flex; align-items: center; gap: 8px; margin-top: 18px; font-size: 13px; color: var(--text-sub); }
+  .rating .stars { color: var(--star); font-size: 13px; letter-spacing: 1px; }
+
+  .option-group { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line-soft); }
+  .option-group h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 18px; }
+  .selected-style { color: var(--text-sub); font-weight: 400; font-size: 16px; margin-left: 6px; }
+
+  /* 平台切换器 */
+  .platform-switcher {
+    display: flex; background: var(--bg-soft); border-radius: 10px; padding: 3px; margin-bottom: 24px;
+  }
+  .platform-btn {
+    flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px;
+    font-size: 14px; font-weight: 500; color: var(--text-sub); cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1); font-family: inherit;
+  }
+  .platform-btn.active { background: #ffffff; color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+  /* 列表卡片 */
+  .style-list { display: flex; flex-direction: column; gap: 12px; }
+  .style-card {
+    display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: var(--bg-soft);
+    border: 2px solid transparent; border-radius: 18px; cursor: pointer; transition: all 0.2s ease;
+    text-align: left; font-family: inherit; width: 100%;
+  }
+  .style-card:hover { background: #ebebf0; }
+  .style-card.selected { background: #eef1ec; border-color: var(--matcha); }
+
+  .style-icon {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--sw); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; position: relative;
+  }
+  .style-card.selected .style-icon::after { content: "✓"; color: #fff; font-size: 16px; font-weight: bold; }
+  .style-info { flex: 1; }
+  .style-name { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .style-desc { font-size: 13px; color: var(--text-sub); }
+  .style-icon.palette { background: #e8ede3; font-size: 20px; }
+  .style-card.selected .style-icon.palette::after { display: none; }
+
+  .price-block { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line-soft); }
+  .price-label { font-size: 13px; color: var(--text-mute); margin-bottom: 6px; }
+  .price { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; }
+  .price-note { margin-top: 8px; font-size: 13px; color: var(--text-sub); }
+
+  .stock { margin-top: 28px; display: flex; flex-direction: column; gap: 14px; }
+  .stock-row { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--text-sub); }
+  .stock-row strong { color: var(--text); font-weight: 500; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #34c759; margin-top: 6px; flex-shrink: 0; }
+  .icon-box { width: 22px; height: 22px; border-radius: 6px; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; color: var(--text-sub); }
+
+  .features { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 12px; }
+  .feature { display: flex; gap: 10px; font-size: 14px; color: var(--text-sub); }
+  .feature .check { color: var(--accent); font-weight: 600; }
+
+  /* ---------- 吸底栏 ---------- */
+  .sticky-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+    background: rgba(251,251,253,0.9);
+    backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
+  .sticky-inner { max-width: 1040px; margin: 0 auto; padding: 12px clamp(20px, 5vw, 48px); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .sticky-price { display: flex; flex-direction: column; gap: 2px; }
+  .sticky-price .amount { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .sticky-price .meta { font-size: 12px; color: var(--text-sub); }
+
+  .btn-download {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 160px; padding: 13px 30px; border-radius: 980px;
+    background: var(--accent); color: #fff;
+    font-size: 16px; font-weight: 500; text-decoration: none;
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease, box-shadow 0.2s ease;
+    border: none; cursor: pointer;
+  }
+  .btn-download:hover { background: var(--accent-hover); transform: scale(1.03); box-shadow: 0 8px 20px rgba(0,113,227,0.25); }
+  .btn-download:active { transform: scale(0.95); }
+  .btn-download.loading { background: var(--accent-hover); pointer-events: none; opacity: 0.8; }
+
+  /* ---------- 全局 404 弹窗 ---------- */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+  .modal-card {
+    background: rgba(255, 255, 255, 0.95);
+    width: 90%; max-width: 340px;
+    border-radius: 24px; overflow: hidden;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  }
+  .modal-overlay.show .modal-card { transform: scale(1); }
+
+  .modal-content { padding: 28px 24px 20px; }
+  .modal-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); margin-bottom: 8px; }
+  .modal-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
+  
+  .modal-btn {
+    width: 100%; padding: 16px; border: none;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    background: transparent; color: var(--accent);
+    font-size: 17px; font-weight: 500; cursor: pointer; font-family: inherit;
+    transition: background 0.2s ease;
+  }
+  .modal-btn:hover { background: rgba(0,0,0,0.03); }
+  .modal-btn:active { background: rgba(0,0,0,0.08); }
+
+  @media (max-width: 834px) {
+    .buy-grid { grid-template-columns: 1fr; gap: 40px; }
+    .preview-col { position: static; order: -1; }
+    .phone { width: min(240px, 62vw); }
+    .nav-right a:not(.nav-logo) { display: none; }
+  }
+  @media (max-width: 500px) {
+    .sticky-price .meta { display: none; }
+    .btn-download { min-width: 0; flex: 1; max-width: 220px; }
+  }
+</style>
+</head>
+<body class="page-load">
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">半夏<em>日记</em></a>
+  <div class="nav-right">
+    <a href="details.html">进一步了解</a>
+    <a href="index.html">返回首页</a>
+  </div>
+</nav>
+
+<main class="buy-page">
+  <div class="breadcrumb">
+    <a href="index.html">半夏日记</a><span>›</span>选购半夏日记
+  </div>
+
+  <div class="buy-grid">
+    <!-- 左：手机预览 -->
+    <div class="preview-col">
+      <div class="phone" id="phoneElement">
+        <div class="phone-screen" id="phoneScreen">
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="status-icons"><i></i><i></i><i></i></span>
+          </div>
+          <div class="app-body">
+            <p class="app-date">6月21日 · 星期五</p>
+            <h2 class="app-title">今天怎么样？</h2>
+            <div class="mood-row">
+              <span class="mood active">平静</span>
+              <span class="mood">开心</span>
+              <span class="mood">疲惫</span>
+            </div>
+            <div class="entry-card">
+              <div class="entry-head">
+                <span class="entry-tag">碎碎念</span>
+                <span class="entry-time">21:04</span>
+              </div>
+              <p class="entry-text">今天路过街角那家花店，买了一小束尤加利。</p>
+            </div>
+            <div class="entry-card">
+              <div class="entry-head">
+                <span class="entry-tag">心愿</span>
+                <span class="entry-time">20:12</span>
+              </div>
+              <p class="entry-text">周末去看一场日落。</p>
+            </div>
+          </div>
+          <div class="tab-bar">
+            <span class="tab active"></span>
+            <span class="tab"></span>
+            <span class="tab"></span>
+          </div>
+        </div>
+      </div>
+      
+      <p class="preview-caption" id="previewCaption">清新半夏</p>
+      <!-- 新增：免责声明 -->
+      <p class="disclaimer">* 效果图及配色方案仅供参考，实际界面体验以应用内为准。</p>
+    </div>
+
+    <!-- 右：选项 -->
+    <div class="options-col">
+      <h1>半夏日记</h1>
+      <p class="options-sub">提笔留念，拥抱每一度微澜。</p>
+
+      <div class="rating">
+        <span class="stars">★★★★★</span>
+        <span>4.9 · 2.3 万条评价</span>
+      </div>
+
+      <!-- 平台选择器 -->
+      <div class="option-group">
+        <h3>选择平台</h3>
+        <div class="platform-switcher">
+          <button class="platform-btn active" data-platform="android">Android 安卓</button>
+          <button class="platform-btn" data-platform="web">网页端</button>
+        </div>
+      </div>
+
+      <!-- 皮肤选择器 -->
+      <div class="option-group" style="margin-top: 10px;">
+        <h3>切换皮肤 <span class="selected-style" id="selectedStyle">清新半夏</span></h3>
+        
+        <div class="style-list" id="styleList">
+          <button class="style-card selected" data-style="matcha" style="--sw:#8a9a7b">
+            <div class="style-icon"></div>
+            <div class="style-info">
+              <div class="style-name">清新半夏</div>
+              <div class="style-desc">草木香气，温和治愈</div>
+            </div>
+          </button>
+
+          <button class="style-card" data-style="autumn" style="--sw:#d67b52">
+            <div class="style-icon"></div>
+            <div class="style-info">
+              <div class="style-name">暮秋暖橙</div>
+              <div class="style-desc">暖阳晚霞，温馨惬意</div>
+            </div>
+          </button>
+
+          <button class="style-card" data-style="night" style="--sw:#4e685c">
+            <div class="style-icon"></div>
+            <div class="style-info">
+              <div class="style-name">深墨夜鸦</div>
+              <div class="style-desc">月下蝉鸣，深夜静谧</div>
+            </div>
+          </button>
+
+          <button class="style-card" data-style="minimal" style="--sw:#1d1d1f">
+            <div class="style-icon"></div>
+            <div class="style-info">
+              <div class="style-name">极简素白</div>
+              <div class="style-desc">纯净无杂，白纸黑字</div>
+            </div>
+          </button>
+
+          <button class="style-card" data-style="custom">
+            <div class="style-icon palette">🎨</div>
+            <div class="style-info">
+              <div class="style-name">自定义配色</div>
+              <div class="style-desc">自由搭配你的专属皮肤</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="price-block">
+        <p class="price-label">下载说明</p>
+        <p class="price" id="priceDisplay">免费下载</p>
+        <p class="price-note">应用基础功能及多种内置主题可免费使用，下载后即可体验。</p>
+      </div>
+
+      <div class="stock">
+        <div class="stock-row">
+          <span class="dot"></span>
+          <span><strong>可下载</strong> · 随时开始记录</span>
+        </div>
+        <div class="stock-row">
+          <span class="icon-box">↓</span>
+          <span>安装包约 12 MB · 登录后自动云同步</span>
+        </div>
+        <div class="stock-row">
+          <span class="icon-box">✓</span>
+          <span>多设备同步 · 换手机也不丢</span>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature"><span class="check">✓</span>基础记录功能免费使用</div>
+        <div class="feature"><span class="check">✓</span>内置多重治愈主题风格</div>
+        <div class="feature"><span class="check">✓</span>极简克制的界面，专注记录</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="sticky-bar">
+  <div class="sticky-inner">
+    <div class="sticky-price">
+      <span class="amount" id="stickyAmount">免费下载</span>
+      <span class="meta" id="stickyMeta">清新半夏 · Android</span>
+    </div>
+    <a class="btn-download" href="banxia.apk" download id="downloadBtn">下载</a>
+  </div>
+</div>
+
+<!-- 全局 404 弹窗 -->
+<div class="modal-overlay" id="webTestModal">
+  <div class="modal-card">
+    <div class="modal-content">
+      <h2 class="modal-title">未找到该页面</h2>
+      <p class="modal-desc">请检查网络连接，或稍后再试。</p>
+    </div>
+    <button class="modal-btn" id="modalCloseBtn">好</button>
+  </div>
+</div>
+
+<script>
+  const STYLES = {
+    matcha: { name: '清新半夏', vars: { '--s-bg': '#eef1ec', '--s-card': '#ffffff', '--s-text': '#3d4a32', '--s-sub': '#6b7a5e', '--s-accent': '#8a9a7b', '--s-accent-soft': '#d8e0d0', '--s-tag': '#e8ede3' } },
+    autumn: { name: '暮秋暖橙', vars: { '--s-bg': '#faf7f2', '--s-card': '#ffffff', '--s-text': '#5c3d2e', '--s-sub': '#8a6a5a', '--s-accent': '#d67b52', '--s-accent-soft': '#f0e0d6', '--s-tag': '#f5ebe6' } },
+    night: { name: '深墨夜鸦', vars: { '--s-bg': '#1c2420', '--s-card': '#2a332e', '--s-text': '#e2e8e5', '--s-sub': '#9ea8a3', '--s-accent': '#8a9a7b', '--s-accent-soft': '#36453c', '--s-tag': '#36453c' } },
+    minimal: { name: '极简素白', vars: { '--s-bg': '#ffffff', '--s-card': '#f7f7f7', '--s-text': '#1d1d1f', '--s-sub': '#86868b', '--s-accent': '#1d1d1f', '--s-accent-soft': '#e8e8ed', '--s-tag': '#f0f0f2' } },
+    custom: { name: '自定义配色', vars: { '--s-bg': 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', '--s-card': 'rgba(255, 255, 255, 0.8)', '--s-text': '#2c3e50', '--s-sub': '#546e7a', '--s-accent': '#3498db', '--s-accent-soft': 'rgba(52, 152, 219, 0.2)', '--s-tag': 'rgba(52, 152, 219, 0.1)' } }
+  };
+
+  const phoneElement = document.getElementById('phoneElement');
+  const screen = document.getElementById('phoneScreen');
+  const selectedStyleLabel = document.getElementById('selectedStyle');
+  const previewCaption = document.getElementById('previewCaption');
+  const stickyMeta = document.getElementById('stickyMeta');
+  const styleCards = document.querySelectorAll('.style-card');
+
+  const platformBtns = document.querySelectorAll('.platform-btn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const stickyAmount = document.getElementById('stickyAmount');
+  const priceDisplay = document.getElementById('priceDisplay');
+
+  const webTestModal = document.getElementById('webTestModal');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+  let currentStyleKey = 'matcha';
+  let currentPlatform = 'android';
+  let isAnimating = false;
+
+  function applyStyleData(key) {
+    const s = STYLES[key];
+    if (!s) return;
+
+    if (key === 'custom') {
+      screen.style.background = s.vars['--s-bg'];
+      screen.style.setProperty('--s-bg', 'transparent');
+      Object.entries(s.v

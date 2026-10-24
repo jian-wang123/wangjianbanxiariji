@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>半夏日记 — 提笔留念，拥抱每一度微澜</title>
+  <style>
+    :root {
+      --bg-light: #ffffff;
+      --bg-off-white: #f5f5f7;
+      --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --text-subtle: #86868b;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --matcha: #8a9a7b;
+      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+        "SF Pro Text", "Helvetica Neue", "PingFang SC", "Noto Sans SC", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-stack);
+      background: var(--bg-light);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    body.page-leaving { opacity: 0; transform: scale(0.98); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(1.02); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .page-load { animation: fadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(20px, 5vw, 64px);
+      background: rgba(251, 251, 253, 0.82);
+      backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .nav-logo { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-primary); text-decoration: none; }
+    .nav-logo em { font-style: normal; color: var(--matcha); }
+    .nav-right { display: flex; align-items: center; gap: 28px; font-size: 12px; color: var(--text-secondary); }
+    .nav-right a { color: inherit; text-decoration: none; transition: color 0.2s; }
+    .nav-right a:hover { color: var(--text-primary); }
+    .nav-cta { padding: 7px 16px; border-radius: 980px; background: var(--accent); color: #fff !important; font-size: 12px; font-weight: 500; }
+    .nav-cta:hover { background: var(--accent-hover) !important; }
+
+    .hero {
+      position: relative; min-height: 100svh; background: var(--bg-light);
+      overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; background: var(--bg-light); }
+    .hero::after {
+      content: ""; position: absolute; inset: auto 0 0 0; height: 140px;
+      background: linear-gradient(to bottom, transparent, #ffffff 90%);
+      pointer-events: none; z-index: 1;
+    }
+    .hero-content { position: relative; z-index: 2; text-align: center; padding: 0 24px; max-width: 980px; margin-top: -6vh; }
+    .hero-eyebrow { font-size: clamp(14px, 1.6vw, 17px); font-weight: 500; letter-spacing: 0.02em; color: var(--text-secondary); margin-bottom: 14px; }
+    .hero-title { font-size: clamp(56px, 9vw, 96px); font-weight: 500; letter-spacing: -0.035em; line-height: 1.02; color: var(--text-primary); margin-bottom: 18px; }
+    .hero-subtitle { font-size: clamp(19px, 2.4vw, 25px); font-weight: 400; letter-spacing: -0.01em; line-height: 1.35; color: var(--text-secondary); max-width: 640px; margin: 0 auto 32px; }
+
+    .cta-row { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 148px; padding: 14px 28px; border-radius: 980px;
+      font-size: 17px; font-weight: 500; letter-spacing: -0.01em;
+      text-decoration: none; cursor: pointer; border: none;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn:hover { transform: scale(1.03); }
+    .btn:active { transform: scale(0.95); }
+    .btn-secondary { background: transparent; color: var(--accent); border: 1px solid rgba(0, 113, 227, 0.5); }
+    .btn-secondary:hover { background: rgba(0, 113, 227, 0.06); border-color: var(--accent); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 8px 20px rgba(0,113,227,0.25); }
+
+    .video-controls {
+      position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%);
+      z-index: 3; width: min(680px, calc(100% - 48px));
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: 980px;
+      background: rgba(30, 30, 32, 0.55);
+      backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+      color: #fff; --track: rgba(255, 255, 255, 0.28); --fill: #ffffff; --btn-hover: rgba(255, 255, 255, 0.16); --time-color: rgba(255, 255, 255, 0.7);
+    }
+    .ctrl-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background 0.2s ease; padding: 0; }
+    .ctrl-btn:hover { background: var(--btn-hover); }
+    .ctrl-btn:active { transform: scale(0.94); }
+    .ctrl-btn svg { display: block; }
+    .progress { flex: 1; min-width: 0; height: 4px; border-radius: 2px; -webkit-appearance: none; appearance: none; cursor: pointer; background: linear-gradient(to right, var(--fill) var(--pct, 0%), var(--track) var(--pct, 0%)); outline: none; }
+    .progress::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); transition: transform 0.15s ease; }
+    .progress::-moz-range-thumb { width: 12px; height: 12px; border: none; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); }
+    .progress:hover::-webkit-slider-thumb { transform: scale(1.15); }
+    .time-label { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--time-color); white-space: nowrap; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+    .intro-band { background: var(--bg-light); padding: clamp(80px, 12vh, 140px) 24px clamp(60px, 8vh, 100px); text-align: center; }
+    .intro-band p { font-size: clamp(28px, 4.2vw, 48px); font-weight: 500; letter-spacing: -0.025em; line-height: 1.18; max-width: 820px; margin: 0 auto; color: var(--text-primary); }
+    .intro-band span { color: var(--matcha); }
+
+    /* ---------- 首页底部 ---------- */
+    .footer {
+      background: var(--bg-off-white);
+      border-top: 1px solid #d2d2d7;
+      padding: 32px 0;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .footer-inner {
+      max-width: 980px; margin: 0 auto; padding: 0 24px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .footer-links a { color: inherit; text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text-primary); text-decoration: underline; }
+    .footer-qq { color: var(--accent) !important; font-weight: 500; }
+    .footer-qq:hover { color: var(--accent-hover) !important; }
+
+    @media (max-width: 900px) and (orientation: portrait) {
+      .hero { min-height: 0; justify-content: flex-start; padding-top: calc(48px + 72px); padding-bottom: 56px; }
+      .hero-video { position: relative; inset: auto; width: calc(100% - 40px); height: auto; aspect-ratio: 16 / 9; object-fit: contain; order: 2; background: #000; margin-top: 12px; border-radius: 18px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12); }
+      .hero-content { order: 1; margin: 0 0 36px; padding: 0 24px; }
+      .hero::after { display: none; }
+      .hero-title { font-size: clamp(40px, 11vw, 56px); }
+      .hero-subtitle { font-size: clamp(16px, 4.2vw, 19px); margin-bottom: 28px; }
+      .cta-row { flex-direction: column; gap: 12px; }
+      .btn { width: 100%; max-width: 320px; }
+      .video-controls { position: relative; left: auto; bottom: auto; transform: none; order: 3; width: calc(100% - 40px); margin: 12px auto 0; background: var(--bg-off-white); color: var(--text-primary); --track: rgba(0, 0, 0, 0.12); --fill: #1d1d1f; --btn-hover: rgba(0, 0, 0, 0.06); --time-color: var(--text-secondary); }
+      .video-controls .progress::-webkit-slider-thumb { background: #1d1d1f; }
+      .video-controls .progress::-moz-range-thumb { background: #1d1d1f; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 500px) {
+      .time-label { display: none; }
+      .video-controls { gap: 4px; padding: 8px 10px; }
+      .ctrl-btn { width: 30px; height: 30px; }
+      .footer-links { flex-direction: column; gap: 12px; }
+    }
+    @media (max-width: 734px) and (orientation: landscape) {
+      .nav-right a:not(.nav-cta) { display: none; }
+      .video-controls { bottom: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .hero-video { display: none; }
+      .hero { background: radial-gradient(circle at 50% 30%, #eef1ec, #ffffff 70%); }
+      .video-controls { display: none; }
+    }
+  </style>
+</head>
+<body class="page-load">
+
+  <nav class="nav">
+    <a class="nav-logo" href="index.html">半夏<em>日记</em></a>
+    <div class="nav-right">
+      <a href="details.html">设计理念</a>
+      <a href="https://banxiariji.cn/api/privacy.html" target="_blank">隐私</a>
+      <a class="nav-cta" href="download.html">下载</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="" aria-hidden="true">
+      <source src="YOUR_VIDEO_HERE.mp4" type="video/mp4" />
+    </video>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow">半夏日记</p>
+      <h1 class="hero-title">提笔留念，<br />拥抱每一度微澜。</h1>
+      <p class="hero-subtitle">
+        一款极简、治愈系的手账日记应用。<br />
+        没有弹窗，没有打扰，只有纸笔般的温柔。
+      </p>
+
+      <div class="cta-row">
+        <a class="btn btn-secondary" href="details.html">进一步了解</a>
+        <a class="btn btn-primary" href="download.html">下载</a>
+      </div>
+    </div>
+
+    <div class="video-controls" role="group" aria-label="视频控制">
+      <button class="ctrl-btn" id="playBtn" aria-label="暂停"></button>
+      <input class="progress" id="progress" type="range" min="0" max="100" step="0.1" value="0" aria-label="播放进度" />
+      <span class="time-label" id="timeLabel">0:00 / 0:00</span>
+      <button class="ctrl-btn" id="replayBtn" aria-label="重播"></button>
+      <button class="ctrl-btn" id="muteBtn" aria-label="开启声音"></button>
+    </div>
+  </section>
+
+  <section class="intro-band">
+    <p>
+      记录本来就不该是负担。<br />
+      <span>半夏日记</span>把界面退到身后，<br />
+      把生活还给你。
+    </p>
+  </section>
+
+  <!-- 底部区域 -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>Copyright © 2024 半夏日记. 保留所有权利。</div>
+      <div class="footer-links">
+        <a href="https://banxiariji.cn/api/privacy.html" target="_blank">隐私政策</a>
+        <a href="https://banxiariji.cn/api/agreement.html" target="_blank">用户协议</a>
+        <a href="https://v.wjx.cn/vm/tU0xGGq.aspx#" target="_blank" class="footer-qq">联系开发者</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const video = document.querySelector('.hero-video');
+    const playBtn = document.getElementById('playBtn');
+    const replayBtn = document.getElementById('replayBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const progress = document.getElementById('progress');
+    const timeLabel = document.getElementById('timeLabel');
+
+    const ICON = {
+      play: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.5 2.6v10.8L13.5 8 4.5 2.6z"/></svg>',
+      pause: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="2.6" width="3" height="10.8" rx="1"/><rect x="9" y="2.6" width="3" height="10.8" rx="1"/></svg>',
+      replay: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 8a5.4 5.4 0 1 0 1.6-3.8"/><path d="M2.6 2.6v3.4h3.4"/></svg>',
+      mute: '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2.6 6v4h2.8l3.4 2.8V3.2L5.4 6H2.6z" fill="currentColor"/><path d="M11 6.2l3.2 3.6M14.2 6.2L11 9.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+      unmute: '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2.6 6v4h2.8l3.4 2.8V3.2L5.4 6H2.6z" fill="currentColor"/><path d="M10.8 5.6a3.4 3.4 0 0 1 0 4.8M12.6 4a5.8 5.8 0 0 1 0 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>'
+    };
+
+    video.muted = true;
+    muteBtn.innerHTML = ICON.mute;
+
+    function updatePlayIcon() {
+      const paused = video.paused;
+      playBtn.innerHTML = paused ? ICON.play : ICON.pause;
+      playBtn.setAttribute('aria-label', paused ? '播放' : '暂停');
+    }
+
+    function fmt(s) {
+      if (!isFinite(s) || s < 0) s = 0;
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + String(sec).padStart(2, '0');
+    }
+
+    let dragging = false;
+    function updateProgress() {
+      if (dragging) return;
+      const d = video.duration;
+      if (!isFinite(d) || d === 0) return;
+      
+      if (video.currentTime < 0.1) {
+        progress.value = 0;
+        progress.style.setProperty('--pct', '0%');
+        timeLabel.textContent = fmt(0) + ' / ' + fmt(d);
+        return;
+      }
+
+      const pct = (video.currentTime / d) * 100;
+      progress.value = pct;
+      progress.style.setProperty('--pct', pct + '%');
+      timeLabel.textContent = fmt(video.currentTime) + ' / ' + fmt(d);
+    }
+
+    video.addEventListener('timeupdate', updateProgress);
+    video.addEventListener('loadedmetadata', updateProgress);
+    video.addEventListener('play', updatePlayIcon);
+    video.addEventListener('pause', updatePlayIcon);
+    
+    video.addEventListener('seeked', updateProgress);
+
+    playBtn.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
+    replayBtn.addEventListener('click', () => { video.currentTime = 0; video.play(); updateProgress(); });
+    muteBtn.addEventListener('click', () => {
+      video.muted = !video.muted;
+      muteBtn.innerHTML = video.muted ? ICON.mute : ICON.unmute;
+      muteBtn.setAttribute('aria-label', video.muted ? '开启声音' : '静音');
+      if (!video.muted) video.play();
+    });
+
+    progress.addEventListener('pointerdown', () => { dragging = true; });
+    window.addEventListener('pointerup', () => { dragging = false; });
+    progress.addEventListener('input', () => {
+      const d = video.duration;
+      if (!isFinite(d) || d === 0) return;
+      const t = (progress.value / 100) * d;
+      video.currentTime = t;
+      progress.style.setProperty('--pct', progress.value + '%');
+      timeLabel.textContent = fmt(t) + ' / ' + fmt(d);
+    });
+    updatePlayIcon();
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        // 过滤外部链接和带有 target 属性的链接
+        if (!href || href.startsWith('#') || href.startsWith('http') || link.hasAttribute('download') || link.hasAttribute('target')) return;
+        e.preventDefault();
+        document.body.classList.add('page-leaving');
+        setTimeout(() => { window.location.href = href; }, 400);
+      });
+    });
+  </script>
+</body>
+</html>
